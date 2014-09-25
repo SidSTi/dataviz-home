@@ -26,7 +26,8 @@
             	else 
             	{
             		console.log(prices);
-            		prices.forEach(function(d){
+            		prices.forEach(function(d)
+            		{
             			d.X2013 = +d.X2013;
             		});
 
@@ -34,34 +35,39 @@
             			return a.X2013 - b.X2013;
             		});
 
-            		var bars = canvas.selectAll("rect")
+            		var bars = canvas
+            					.selectAll("rect")
             					.data(prices)
             					.enter()
             					.append("rect");
 
-            					bars.attr("height",0)
+            					bars
+            					.attr("height",0)
+            					.attr("y",d_height);
 
            			var barchart = bars
            						.transition()
-					  			.delay(function(d, i) {
-						   return i / prices.length * 1000;
-					   })
-					   			.duration(500)
-					   			
+					  			.delay(function(d, i) 
+					  			{
+						   			return i / prices.length * 1000;
+						   		})
+					   			.duration(1000)
 					   			.attr("height",function(d,i)
             					{
             						return d.X2013*100;
             					})
+            					.attr("fill","#000000")
             					.attr("width",d_width/prices.length - barPadding)
             					.attr("x",function(d,i)
             					{
             						return (i * (d_width/prices.length));       
             					})
-            					.attr("y",function(d){
+            					.attr("y",function(d)
+            					{
             						return d_height - d.X2013*100;
             					});
 
-            						bars
+            						
 
             					
             			
