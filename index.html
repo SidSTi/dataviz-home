@@ -30,23 +30,40 @@
             			d.X2013 = +d.X2013;
             		});
 
+            		prices.sort(function(a,b){
+            			return a.X2013 - b.X2013;
+            		});
+
             		var bars = canvas.selectAll("rect")
             					.data(prices)
             					.enter()
             					.append("rect");
 
-           			var barchart = bars.attr("height",function(d,i)
+            					bars.attr("height",0)
+
+           			var barchart = bars
+           						.transition()
+					  			.delay(function(d, i) {
+						   return i / prices.length * 1000;
+					   })
+					   			.duration(500)
+					   			
+					   			.attr("height",function(d,i)
             					{
             						return d.X2013*100;
             					})
             					.attr("width",d_width/prices.length - barPadding)
             					.attr("x",function(d,i)
             					{
-            						return d_width - (i * (d_width/prices.length));       
+            						return (i * (d_width/prices.length));       
             					})
             					.attr("y",function(d){
             						return d_height - d.X2013*100;
             					});
+
+            						bars
+
+            					
             			
             	}
             	
