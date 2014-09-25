@@ -1,2 +1,62 @@
-<!Doctype>
-<h1>Sid Sethi</h1>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Page Template</title>
+        <script type="text/javascript" src="js/d3.js" charset="utf-8"></script>
+        <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+        	var d_width = 900;
+        	var d_height  = 700;
+        	var barPadding = 1;
+
+            var canvas = d3.select("body")
+            				.append("svg")
+            				.attr("width",d_width)
+            				.attr("height",d_height);
+            var dataset;
+
+            d3.csv("bar-charts/subscription-prices.csv",function(error, prices){
+            	if (error)
+            	{
+            		console.log(error);
+            	} 
+            	else 
+            	{
+            		console.log(prices);
+            		prices.forEach(function(d){
+            			d.X2013 = +d.X2013;
+            		});
+
+            		var bars = canvas.selectAll("rect")
+            					.data(prices)
+            					.enter()
+            					.append("rect");
+
+           			var barchart = bars.attr("height",function(d,i)
+            					{
+            						return d.X2013*100;
+            					})
+            					.attr("width",d_width/prices.length - barPadding)
+            					.attr("x",function(d,i)
+            					{
+            						return d_width - (i * (d_width/prices.length));       
+            					})
+            					.attr("y",function(d){
+            						return d_height - d.X2013*100;
+            					});
+            			
+            	}
+            	
+            });
+
+            
+
+
+
+
+        </script>
+    </body>
+</html>
