@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+
+<head>
+<title>Example 2</title>
+<script src="d3.js" type="text/javascript">
+</script>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src="jquery-2.1.1.min.js" type="text/javascript"></script>
+
+</head>
+
+
+<body>
+<div class="left-div">
+<ul>
+	<li><a href="index.html">Home</a></li>
+	<li><a href="d3-1.html">Example 1</a></li>
+	<li><a href="d3-2.html">Example 2</a></li>
+	<li><a href="d3-3.html">Example 3</a></li>
+	<li><a href="d3-4.html">Example 4</a></li>
+	<li><a href="d3-5.html">Example 5</a></li>
+</ul>
+</div>
+<div class="right-div">
+<p>
+This is a paragraph
+</p>
+<script>
+
+var dataArray = [20, 30, 40, 60, 45, 89, 76, 134, 280];
+var width = 500;
+var height = 800;
+
+var widthScale = d3.scale.linear()
+					.domain([0,280])
+					.range([0,width]);
+
+var color = d3.scale.linear()
+				.domain([0,280])
+				.range(["red","blue"]);
+
+var canvas = d3.select(".right-div")
+				.append("svg")
+				.attr("width",500)
+				.attr("height",800);
+				
+var bars = canvas.selectAll("rect")
+				 .data(dataArray)
+				 .enter()
+				 	.append("rect")
+					.attr("width",function(d){return widthScale(d);})
+					.attr("height",30)
+					.attr("fill",function(d){return color(d);})
+					.attr("y",function(d,i){return i = i*40;});
+</script>
+</div>
+</body>
+</html>

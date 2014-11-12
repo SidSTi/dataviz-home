@@ -1,85 +1,238 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>D3 Page Template</title>
-        <script type="text/javascript" src="js/d3.js" charset="utf-8"></script>
-        <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
-    </head>
-    <body>
-        <script type="text/javascript">
-        	var d_width = 900;
-        	var d_height  = 700;
-        	var barPadding = 1;
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<script src="d3.js" type="text/javascript">
+</script>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src="script.js" type="text/javascript"></script>
+<script src="jquery-2.1.1.min.js" type="text/javascript"></script>
 
-            var canvas = d3.select("body")
-            				.append("svg")
-            				.attr("width",d_width)
-            				.attr("height",d_height);
-            var dataset;
-
-            d3.csv("subscription-prices.csv",function(error, prices){
-            	if (error)
-            	{
-            		console.log(error);
-            	} 
-            	else 
-            	{
-            		console.log(prices);
-            		prices.forEach(function(d)
-            		{
-            			d.X2013 = +d.X2013;
-            		});
-
-            		prices.sort(function(a,b){
-            			return a.X2013 - b.X2013;
-            		});
-
-            		var bars = canvas
-            					.selectAll("rect")
-            					.data(prices)
-            					.enter()
-            					.append("rect");
-
-            					bars
-            					.attr("height",0)
-            					.attr("y",d_height);
-
-           			var barchart = bars
-           						.transition()
-					  			.delay(function(d, i) 
-					  			{
-						   			return i / prices.length * 1000;
-						   		})
-					   			.duration(1000)
-					   			.attr("height",function(d,i)
-            					{
-            						return d.X2013*100;
-            					})
-            					.attr("fill","#000000")
-            					.attr("width",d_width/prices.length - barPadding)
-            					.attr("x",function(d,i)
-            					{
-            						return (i * (d_width/prices.length));       
-            					})
-            					.attr("y",function(d)
-            					{
-            						return d_height - d.X2013*100;
-            					});
-
-            						
-
-            					
-            			
-            	}
-            	
-            });
-
-            
+</head>
+<body>
+<div class="left-div">
+<ul>
+	<li><a href="index.html">Home</a></li>
+	<li><a href="d3-1.html">Example 1</a></li>
+	<li><a href="d3-2.html">Example 2</a></li>
+	<li><a href="d3-3.html">Example 3</a></li>
+	<li><a href="d3-4.html">Example 4</a></li>
+	<li><a href="d3-5.html">Example 5</a></li>
+</ul>
+</div>
+<div class="right-div">
+<div id="tooltip" class="hidden">
+			<p><strong id="Network">Network</strong></p>
+			
+		</div>
+<script type="text/javascript">
+	var d_width = 690;
+	var d_height  = 500;
+	var labelWidth = 600;
+	var labelHeight = 450;
+	var canvas_width = d_width + 20;
+	var canvas_height = d_height + 10;
+	var barPadding = 1;
 
 
+	d3.csv("subscription-prices.csv",function(error, prices){
+	    if (error)
+	    {
+	        console.log(error);
+	    } 
+	    else 
+	    {
+	    	
+	        //console.log(prices);
+	        prices.forEach(function(d)
+	        {
+	            d.X2013 = +d.X2013;
+	        });
+
+	        var maxPrice = d3.max(prices,function(d){
+	        	return d.X2013;
+	        });
+
+	        var minPrice = d3.min(prices,function(d){
+	        	return d.X2013;
+	        });
+	        
+	        var heightScale = d3.scale.linear()
+								.domain([minPrice,maxPrice])
+								.range([0,d_height]);
+
+			var labelScale = d3.scale.linear()
+								.domain([minPrice,maxPrice])
+								.range([0,labelHeight]);
+
+			var y = d3.scale.linear()
+							.domain([minPrice,maxPrice])
+							.range([d_height, 0]);
+
+			/*var colorScale = d3.scale.linear()
+								.domain([minPrice,maxPrice])
+								.range(['blue', 'green']);*/
+
+			var axis = d3.svg.axis()
+	        				.scale(y)
+	        				.ticks(5)
+	        				.orient('right');
+
+	        prices.sort(function(a,b){
+	            return a.X2013 - b.X2013;
+	        });
+
+	        var networkFilter = ["ESPN","ESPN 3D","C-SPAN","The Weather Channel","MSNBC","ESPN2","TNT"];
+
+	        var trackData = prices.filter(function(d, i){
+	        	if($.inArray(d.Network,networkFilter) > -1){
+	        		return i;
+	        	}
+	        	
+	        });
+
+	        console.log(trackData);
+
+						
+	        
+	        //console.log(prices);
+
+			var canvas = d3.select(".right-div")
+	                .append("svg")
+	                .attr("width",canvas_width)
+	                .attr("height",canvas_height)
+	                .append("g");
+
+	        canvas.append("g")
+	        	.attr("class","y axis")
+	        	.attr("transform", "translate(" + (d_width + 1) + ",0)")
+      			.call(axis);
+
+  					
+
+	        var bars = canvas
+	                    .selectAll("rect")
+	                    .data(prices)
+	                    .enter()
+	                    .append("rect");
+
+	                    canvas.selectAll("rect")
+	                    	  .filter(function(d, i){
+	        	if($.inArray(d.Network,networkFilter) > -1){
+	        		return d.Network;}
+	        	return null;  }
+	                    	  ).attr('fill','orange');
+
+	                    bars
+	                    .attr("height",0)
+	                    .attr("y",d_height);
 
 
-        </script>
-    </body>
+	        			bars
+	                    .transition()
+	                    .delay(function(d, i) 
+	                    {
+	                        return i / prices.length * 400;
+	                    })
+	                    .duration(700)
+	                    .attr("height",function(d)
+	                    {
+	                        return heightScale(d.X2013);
+	                    })
+    					.attr("width",d_width/prices.length - barPadding)
+	                    .attr("x",function(d,i)
+	                    {
+	                        return (i * (d_width/prices.length));       
+	                    })
+	                    .attr("y",function(d)
+	                    {
+	                        return d_height - heightScale(d.X2013);
+	                    })
+	                    
+	                    bars
+	                    .classed("g-ESPN",function(d){
+	                    	return d.Network == "ESPN"; 
+	                    });
+
+
+	                    d3.select(".right-div")
+	                    .append("g").attr("class","labelGroup");
+
+	                    d3.select('.labelGroup')
+                    .selectAll("div")
+                    .data(prices)
+                    .enter()
+                    .append("div")
+                    .attr("class","tooltip")
+                    .html("<p><strong id='Network'>Network</strong></p><p>$<span id='value'>100</span> per subscriber</p>")
+                    .select('#Network')
+                    .text(function(d){
+                        return d.Network;
+                    });
+
+                    d3.select(".right-div").selectAll(".tooltip")
+                    	.style("left", function(d,i)
+	                    {
+	                        return (i * (labelWidth/prices.length)) + 160 + "px";       
+	                    } )
+	            		.style("top", function(d)
+	                    {
+	                        return (labelHeight - labelScale(d.X2013)) + 35 + "px";
+	                    }).classed('hidden',true);
+
+	                    d3.select(".right-div").selectAll(".tooltip")                    
+	            		.select("#value")
+	            		.text(function(d){
+                        return d.X2013;
+                    });
+                    
+
+                    d3.select(".right-div").selectAll(".tooltip")
+		                  .filter(function(d, i){
+	        	if($.inArray(d.Network,networkFilter) > -1){
+	        		return d.Network;}
+	        	return null;  })
+		                  .classed('hidden',false);
+
+	                    bars
+	                    .on("mouseover", function(d) {
+
+	        //Get this bar's x/y values, then augment for the tooltip
+	        var xPosition = parseFloat(d3.select(this).attr("x")) + 60 ;
+	        var yPosition = parseFloat(d3.select(this).attr("y")) + 40;
+
+
+	        		
+
+	        //Update the tooltip position and value
+	        d3.select("#tooltip")
+	            .style("left", xPosition + "px")
+	            .style("top", yPosition + "px")                     
+	            
+
+	        d3.select("#tooltip")
+	            .select("#Network")
+	            .text(d.Network);
+	   
+	        //Show the tooltip
+	        d3.select("#tooltip").classed("hidden", false);
+
+	   })
+	   .on("mouseout", function() {
+	   
+	        //Hide the tooltip
+	        d3.select("#tooltip").classed("hidden", true);
+	        
+	   });
+
+	                        
+
+	                    
+	            
+	    }
+	});
+</script>
+</div>
+</body>
 </html>
