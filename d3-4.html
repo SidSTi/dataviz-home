@@ -3,10 +3,12 @@
 
 <head>
 <title>Example 4</title>
-<script src="d3.js" type="text/javascript">
-</script>
+<script src="d3.js" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
+
 <script src="jquery-2.1.1.min.js" type="text/javascript"></script>
+<script src="k-means/clusterfck.js" type="text/javascript"></script>
+<script src="CustomTooltip.js" type="text/javascript"></script>
 
 </head>
 
@@ -22,8 +24,349 @@
 </ul>
 </div>
 <div class="right-div">
+<div class="kmeans">
+	<input type="button" class="kmeans-button" data-k="55" name="k-means" value="k-means" />
+	<div id="clusters"></div>
+</div>
+<script src="bubbleChart.js" type="text/javascript"></script>
 <script type="text/javascript">
+var margin = { top: 10, right: 10, bottom: 10, left: 10 },
+    width = 960 - margin.left - margin.right,
+    height = 640 - margin.top - margin.bottom;
+
+	function decimalAdjust(type, value, exp) {
+		// If the exp is undefined or zero...
+		if (typeof exp === 'undefined' || +exp === 0) {
+			return Math[type](value);
+		}
+		value = +value;
+		exp = +exp;
+		// If the value is not a number or the exp is not an integer...
+		if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+			return NaN;
+		}
+		// Shift
+		value = value.toString().split('e');
+		value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+		// Shift back
+		value = value.toString().split('e');
+		return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+	}
+
+	// Decimal round
+	if (!Math.round10) {
+		Math.round10 = function(value, exp) {
+			return decimalAdjust('round', value, exp);
+		};
+	}
+
+
+
+   
+
+	$(document).ready(function() {
+  
+  function species(rows){
+  	if(rows=='Iris-setosa'){
+  		return '1';
+  	}else if(rows=='Iris-versicolor'){
+  		return '2';
+  	}else{
+  		return '3';
+  	}
+  }
+d3.csv("data.csv", function(error, rows) {
+  console.log(rows[0]);
+
+var csvArr = Object.keys(rows[0]);
+//console.log(csvArr);
+
+for(i=0;i<csvArr.length-1;i++){
+
+	rows.forEach(function(d){
+		d[csvArr[i]] = +d[csvArr[i]];
+});
+}
+
+
+	rows.forEach(function(d){
+		d[csvArr[csvArr.length-1]] = +d[csvArr[csvArr.length-1]];
+
+});
+
+
+
+
+ /*colors = [
+   [21, 24, 80,1],
+   [20, 20, 80,1],
+   [22, 22, 90,1],
+   [250, 255, 253,2],
+   [0, 30, 70,2],
+   [200, 0, 23,2],
+   [100, 54, 100,3],
+   [255, 13, 8,2]
+];*/
+  
+  var arr = [];
+
+  rows.forEach(function(d){
+
+  	var inArr = [];
+  	for (var i in d) {
+		inArr.push(d[i]);
+	}
+  		arr.push(inArr);
+  });
 	
+
+
+  $(".kmeans-button").click(function() {
+     
+
+     var k = $(this).attr("data-k"); // $.data() returned undefined
+     $("#clusters").empty().append("<div>calculating distances...</div>");
+     $("svg").remove();
+     
+     kmeans.clusterColors(arr, k);
+     //clusterKApp(rows,arr,k);
+ 	  
+  });
+
+
+
+
+
+
+
+var kmeans = {
+   clusterColors: function(colors, k) {
+     var worker = new Worker("./kmeans-worker.js");
+     //alert("in clusterColors");
+
+    worker.onmessage = function(event) {
+       var clusters = event.data.clusters;
+
+       var rowArr = Object.keys(rows[0]);
+	   
+
+    //console.log(clusters);
+
+    var clusterArr = [];
+
+	for(i=0;i<clusters.length;i++){
+	    clusterArr[i] = [];
+	    for(j=0;j<clusters[i].length;j++){
+	        clusterArr[i][j] = {};
+	        for(k=0;k<clusters[i][j].length;k++){
+	            
+	            clusterArr[i][j][rowArr[k]] = clusters[i][j][k];
+	        }
+	    }
+	}
+       
+       		var custom_bubble_chart = (function(d3, CustomTooltip) {
+  "use strict";
+ 
+	//alert("custom_bubble_chart");
+	//console.log(clusterArr);
+
+	var width = 940,
+      height = 600,
+      tooltip = CustomTooltip("Iris_tooltip", 240),
+      layout_gravity = -0.01,
+      damper = 0.1,
+      nodes = [],
+      vis, force, circles, radius_scale;
+ 
+  var center = {x: width / 2, y: height / 2};
+
+  	var fill_color = d3.scale.linear()
+  							.domain([0,1])
+  							.range(["blue","cyan"]);
+
+	
+ function custom_chart(clusterArr) {
+  	clusterArr.forEach(function(d){
+      	//alert("inside custom_chart");
+      	var avg_data = {};
+      rowArr.forEach(function(property){
+      	var avg=0;
+      	var sum=0;
+      	d.forEach(function(data){
+      		//data.property = +data.property;
+      		sum += parseFloat(data[property]);
+      		avg = sum/d.length;
+        });
+      	avg_data[property] = Math.round10(avg, -2);
+      	//console.log(sum);
+      });
+
+      
+      var node = {
+        id: Math.round(Math.random() * 100000000),
+        radius: Math.round(d.length/2),
+        mean: d.forEach(function(data){
+
+        }),
+        size: d.length,
+        
+        x: Math.random() * 900,
+        y: Math.random() * 800,
+        avg_data 
+      };
+      nodes.push(node);
+    });
+ 
+ 	
+ 
+    vis = d3.select(".right-div").append("svg")
+                .attr('width', width + margin.left + margin.right)
+				.attr('height', height + margin.top + margin.bottom)
+                .attr("id", "svg_vis");
+ 
+    circles = vis.selectAll("circle")
+                 .data(nodes, function(d) { return d.id ;});
+ 
+    circles.enter().append("circle")
+      .attr("r", 0)
+      .attr("fill", function(d) { return fill_color(d.avg_data.Churn) ;})
+      .attr("stroke-width", 2)
+      .attr("stroke", function(d) {return d3.rgb(fill_color(d.avg_data.Churn)).darker();})
+      .attr("id", function(d) { return  "cluster_" + d.id; })
+      .on("mouseover", function(d, i) {show_details(d, i, this);} )
+      .on("mouseout", function(d, i) {hide_details(d, i, this);} );
+ 
+    circles.transition().duration(2000).attr("r", function(d) { return d.radius; });
+ 	
+	}
+
+    function charge(d) {
+    return -Math.pow(d.radius, 2.0) / 8;
+  }
+ 
+  function start() {
+    force = d3.layout.force()
+            .nodes(nodes)
+            .size([width, height]);
+  }
+ 
+  function display_group_all() {
+    force.gravity(layout_gravity)
+         .charge(charge)
+         .friction(0.9)
+         .on("tick", function(e) {
+            circles.each(move_towards_center(e.alpha))
+                   .attr("cx", function(d) {return d.x;})
+                   .attr("cy", function(d) {return d.y;});
+         });
+    force.start();
+    //hide_years();
+  }
+ 
+  function move_towards_center(alpha) {
+    return function(d) {
+      d.x = d.x + (center.x - d.x) * (damper + 0.02) * alpha;
+      d.y = d.y + (center.y - d.y) * (damper + 0.02) * alpha;
+    };
+  }
+	
+
+	function show_details(data, i, element) {
+		var avg_feature = Object.keys(data.avg_data);
+    d3.select(element).attr("stroke", "black");
+    var content = "<span class=\"name\">Title:</span><span class=\"value\"> " + data.id + "</span><br/>";
+    avg_feature.forEach(function(d){
+    	content +="<span class=\"name\">"+d+":</span><span class=\"value\"> " + data.avg_data[d] + "</span><br/>";
+    })
+    
+    content +="<span class=\"name\">Size:</span><span class=\"value\"> " + data.size + "</span>";
+    tooltip.showTooltip(content, d3.event);
+  }
+ 
+  function hide_details(data, i, element) {
+    d3.select(element).attr("stroke", function(d) { return d3.rgb(fill_color(d.group)).darker();} );
+    tooltip.hideTooltip();
+  }
+
+	var my_mod = {};
+  my_mod.init = function (_data) {
+    custom_chart(_data);
+    start();
+  };
+ 
+  my_mod.display_all = display_group_all;
+ // my_mod.display_year = display_by_year;
+  my_mod.toggle_view = function(view_type) {
+    if (view_type == 'year') {
+      //display_by_year();
+    } else {
+      display_group_all();
+      }
+    };
+ 
+  return my_mod;
+})(d3, CustomTooltip);
+
+ 		
+	custom_bubble_chart.init(clusterArr);
+        custom_bubble_chart.toggle_view('all');
+
+       if(event.data.time){
+         $("<div>" + event.data.time + " ms</div>")
+           .css("margin-bottom", "14px")
+           .prependTo($("#clusters"));
+       }
+     };
+
+     worker.onerror = function(event) {
+       console.log("Worker thread error: " + event.message
+             + " " + event.filename + " " + event.lineno);
+     }
+
+     worker.postMessage({
+       colors: colors,
+       frameRate: 2000,
+       k: k
+     });
+   }
+}
+
+
+
+
+});
+
+
+ });
+
+
+	
+
+
+function visualizeClusters(clusters) {
+  $("#clusters").empty();
+  var total = 0; 
+  for(var i = 0; i < clusters.length; i++) {
+    var cluster = clusters[i];
+    total += cluster.length;
+    var width = Math.ceil(Math.sqrt(cluster.length));
+    var div = $("<div class='group'></div>").appendTo("#clusters");
+    var row;
+
+    for(var j = 0; j < cluster.length; j++) {
+      if(j % width == 0)
+        row = $("<div class='row'></div>").appendTo(div);
+      var color = cluster[j];
+      color = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
+
+      row.append("<div class='swatch' style='background-color: " +
+        color  + "'></div>");
+    }
+  }
+}
+
+
 </script>
 </div>
 </body>
