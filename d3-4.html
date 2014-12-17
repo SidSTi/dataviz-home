@@ -25,7 +25,7 @@
 </div>
 <div class="right-div">
 <div class="kmeans">
-	<input type="button" class="kmeans-button" data-k="55" name="k-means" value="k-means" />
+	<input type="button" class="kmeans-button" data-k="95" name="k-means" value="k-means" />
 	<div id="clusters"></div>
 </div>
 <script src="bubbleChart.js" type="text/javascript"></script>
@@ -183,7 +183,7 @@ var kmeans = {
 
   	var fill_color = d3.scale.linear()
   							.domain([0,1])
-  							.range(["blue","cyan"]);
+  							.range(["red","blue"]);
 
 	
  function custom_chart(clusterArr) {
@@ -325,8 +325,8 @@ var kmeans = {
      }
 
      worker.postMessage({
-       colors: colors,
-       frameRate: 2000,
+       colors: colors,/*
+       frameRate: 6000,*/
        k: k
      });
    }
