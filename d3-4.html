@@ -285,7 +285,7 @@ var kmeans = {
   }
  
   function hide_details(data, i, element) {
-    d3.select(element).attr("stroke", function(d) { return d3.rgb(fill_color(d.group)).darker();} );
+    d3.select(element).attr("stroke", function(d) { return d3.rgb(fill_color(d.avg_data.Churn)).darker();} );
     tooltip.hideTooltip();
   }
 
